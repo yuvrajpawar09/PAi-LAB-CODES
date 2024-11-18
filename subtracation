@@ -1,0 +1,16 @@
+section .data
+    num1 db 0x50        ; First number (0x50 in hexadecimal)
+    num2 db 0x20        ; Second number (0x20 in hexadecimal)
+    result db 0         ; Variable to store the result
+
+section .text
+    global _start
+
+_start:
+    mov al, [num1]      ; Load num1 into AL
+    sub al, [num2]      ; Subtract num2 directly from AL
+    mov [result], al    ; Store the result in 'result'
+
+    mov eax, 1          ; Syscall: exit
+    xor ebx, ebx        ; Exit status: 0
+    int 80h
