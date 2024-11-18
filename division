@@ -1,0 +1,57 @@
+section .data
+    msg1 db 'Enter first number: ',10
+    msg1len equ $-msg1
+
+    msg2 db 'Enter second number: ',10
+    msg2len equ $-msg2
+
+    msg3 db 'Quotient is: ',10
+    msg3len equ $-msg3
+
+    msg4 db 'Remainder is: ',10
+    msg4len equ $-msg4
+
+section .bss
+    var1 resb 2   ; First number
+    var2 resb 2   ; Second number
+    var3 resb 2   ; Quotient
+    var4 resb 2   ; Remainder
+
+%macro rw 4
+    mov eax, %1
+    mov ebx, %2
+    mov ecx, %3
+    mov edx, %4
+    int 80h
+%endmacro
+
+section .text
+global _start
+
+_start:
+    rw 4, 1, msg1, msg1len      ; Prompt for first number
+    rw 3, 0, var1, 2            ; Read first number
+    rw 4, 1, msg2, msg2len      ; Prompt for second number
+    rw 3, 0, var2, 2            ; Read second number
+
+    mov al, [var1]
+    sub al, 48                  ; Convert ASCII to integer
+    mov ah, 0                   ; Clear upper byte of AX
+    mov bl, [var2]
+    sub bl, 48                  ; Convert ASCII to integer
+
+    div bl                      ; Divide AX by BL, Quotient -> AL, Remainder -> AH
+
+    add al, 48                  ; Convert quotient back to ASCII
+    mov [var3], al
+    add ah, 48                  ; Convert remainder back to ASCII
+    mov [var4], ah
+
+    rw 4, 1, msg3, msg3len      ; Print "Quotient is: "
+    rw 4, 1, var3, 2            ; Print quotient
+    rw 4, 1, msg4, msg4len      ; Print "Remainder is: "
+    rw 4, 1, var4, 2            ; Print remainder
+
+    mov eax, 1
+    xor ebx, ebx
+    int 80h
