@@ -1,0 +1,33 @@
+section .data
+    x db 1, 2, 3, 0         ; Array of bytes with 0 marking the end.
+
+section .bss
+    sum resb 2              ; Reserve 2 bytes to store the result.
+
+section .text
+    global _start
+
+_start:
+    xor eax, eax            ; Clear eax (used for the sum).
+    xor ebx, ebx            ; Clear ebx (will hold the sum).
+    mov ecx, x              ; Load the address of the array into ecx.
+
+loop_start:
+    mov al, [ecx]           ; Load the current array value into al.
+    add ebx, eax            ; Add the value in al to ebx.
+    inc ecx                 ; Move to the next byte in the array.
+    cmp al, 0               ; Check if the current value is 0 (end of array).
+    jne loop_start          ; If not, jump back to loop_start.
+
+    add ebx, '0'            ; Convert the sum in ebx to ASCII.
+    mov [sum], bx           ; Store the ASCII result in sum.
+
+    mov eax, 4              ; Syscall: write.
+    mov ebx, 1              ; File descriptor: stdout.
+    mov ecx, sum            ; Address of sum to write.
+    mov edx, 2              ; Number of bytes to write.
+    int 80h                 ; Invoke the syscall.
+
+    mov eax, 1              ; Syscall: exit.
+    xor ebx, ebx            ; Exit status: 0.
+    int 80h
