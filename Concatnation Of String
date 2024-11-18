@@ -1,0 +1,49 @@
+section .data
+    first db "Hitansh", 0        ; First name
+    middle db " Chetan", 0       ; Middle name (with a space for separation)
+    last db " Pawar", 0          ; Last name (with a space for separation)
+    fullname db 30 dup(0)        ; Reserve space for the full name
+
+section .text
+    global _start
+
+_start:
+    ; Concatenate first name
+    mov esi, first
+    mov edi, fullname
+concat_loop:
+    lodsb                      ; Load byte from [esi] into AL and increment ESI
+    stosb                      ; Store byte in AL at [edi] and increment EDI
+    test al, al                ; Check if AL is 0 (end of string)
+    jz next_part
+
+next_part:
+    cmp esi, middle            ; Check if processing the first name
+    je concat_middle
+    cmp esi, last              ; Check if processing the middle name
+    je concat_last
+
+concat_middle:
+    mov esi, middle
+    jmp concat_loop
+
+concat_last:
+    mov esi, last
+    jmp concat_loop
+
+    ; Finish concatenation
+done:
+    mov byte [edi], 0          ; Null-terminate the concatenated string
+
+    ; Print the concatenated full name
+    mov eax, 4                 ; syscall number for write
+    mov ebx, 1                 ; file descriptor (stdout)
+    lea ecx, [fullname]        ; Load address of fullname
+    mov edx, edi               ; Length of concatenated string
+    sub edx, fullname          ; Calculate the string length
+    int 0x80
+
+    ; Exit program
+    mov eax, 1                 ; syscall number for exit
+    xor ebx, ebx               ; Exit status 0
+    int 0x80
