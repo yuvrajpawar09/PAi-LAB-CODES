@@ -1,0 +1,40 @@
+section .data
+    msg db 'Addition of 4 & 3 is:', 10  ; Message to print, followed by a newline
+    len equ $ - msg                     ; Length of the message
+
+section .bss
+    sum resb 1                          ; Reserved space for the sum (1 byte)
+
+section .text
+    global _start
+_start:
+    ; Convert ASCII to integer and perform addition
+    mov eax, '4'                        
+    sub eax, '0'                        ; Convert ASCII '4' to integer 4
+
+    mov ebx, '3'                        
+    sub ebx, '0'                        ; Convert ASCII '3' to integer 3
+
+    add eax, ebx                        ; Add the two integers (4 + 3 = 7)
+    add eax, '0'                        ; Convert the result back to ASCII
+
+    mov [sum], al                       ; Store the result in `sum`
+
+    ; Print the message
+    mov eax, 4                          ; Syscall for write
+    mov ebx, 1                          ; File descriptor (stdout)
+    mov ecx, msg                        ; Address of the message
+    mov edx, len                        ; Length of the message
+    int 80h                             ; Trigger the syscall
+
+    ; Print the result
+    mov eax, 4                          ; Syscall for write
+    mov ebx, 1                          ; File descriptor (stdout)
+    mov ecx, sum                        ; Address of the result
+    mov edx, 1                          ; Length of the result
+    int 80h                             ; Trigger the syscall
+
+    ; Exit the program
+    mov eax, 1                          ; Syscall for exit
+    xor ebx, ebx                        ; Exit status (0)
+    int 80h
